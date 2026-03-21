@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Disease Dashboard</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+
+<!-- 🌈 Background -->
+<div class="bg"></div>
+
+<!-- 🌍 Language Switch -->
+<div class="lang-container">
+    <button class="lang-btn" onclick="setLanguage('en')">English</button>
+    <button class="lang-btn" onclick="setLanguage('hi')">हिंदी</button>
+</div>
+
+<!-- 🧊 MAIN WRAPPER -->
+<div class="container">
+
+    <div class="glass dashboard">
+
+        <!-- 🏷️ TITLE -->
+        <h1 class="title" data-i18n="title"></h1>
+
+        <!-- 📊 STATS -->
+        <div class="stats">
+
+            <div class="card glass">
+                <h3 data-i18n="total"></h3>
+                <p id="totalPredictions">0</p>
+            </div>
+
+            <div class="card glass">
+                <h3 data-i18n="accuracy"></h3>
+                <p id="accuracy">92%</p>
+            </div>
+
+            <div class="card glass">
+                <h3 data-i18n="users"></h3>
+                <p id="users">1,245</p>
+            </div>
+
+        </div>
+
+        <!-- 🧬 MAIN DATA -->
+        <div class="grid-dashboard">
+
+            <div class="card glass">
+                <h2 data-i18n="lastDisease"></h2>
+                <p id="disease">N/A</p>
+            </div>
+
+            <div class="card glass">
+                <h2 data-i18n="symptoms"></h2>
+                <p id="symptoms">N/A</p>
+            </div>
+
+            <div class="card glass">
+                <h2 data-i18n="risk"></h2>
+                <p id="risk">N/A</p>
+            </div>
+
+            <div class="card glass">
+                <h2 data-i18n="activity"></h2>
+                <ul id="activity-list"></ul>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/dashboard.js"></script>
+<script>
+    checkAuth();
+</script>
+
+</body>
+</html>

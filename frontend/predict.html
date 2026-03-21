@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Predict</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<div class="bg"></div>
+
+<h2 class="title">Disease Predictor</h2>
+
+<div class="glass container">
+    <form id="predictionForm">
+        <input type="text" id="search" placeholder="Search symptom...">
+        <div id="symptomsContainer" class="grid"></div>
+        <button class="btn">Predict</button>
+    </form>
+
+    <div id="loading" class="hidden">Analyzing...</div>
+    <div id="result"></div>
+</div>
+
+<script src="js/predict.js"></script>
+</body>
+</html>

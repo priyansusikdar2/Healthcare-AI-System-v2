@@ -1,0 +1,235 @@
+/* ================= GLOBAL ================= */
+body {
+    margin: 0;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ================= BACKGROUND ================= */
+.bg {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(270deg,#1e3c72,#2a5298,#6dd5ed);
+    background-size: 600% 600%;
+    animation: gradientMove 12s ease infinite;
+    z-index: -1;
+}
+
+@keyframes gradientMove {
+    0% {background-position: 0%}
+    50% {background-position: 100%}
+    100% {background-position: 0%}
+}
+
+/* ================= GLASS ================= */
+.glass {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(18px);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.glass:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+/* ================= CONTAINER ================= */
+.container {
+    width: 90%;
+    max-width: 900px;
+    margin: 30px auto;
+}
+
+/* ================= TITLE ================= */
+.title {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* ================= BUTTON ================= */
+.btn {
+    padding: 12px 22px;
+    border-radius: 25px;
+    background: linear-gradient(90deg,#00c6ff,#0072ff);
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 15px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+/* Hover + click */
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,198,255,0.4);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+/* ================= GRID ================= */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* ================= SYMPTOM CARD ================= */
+label.glass {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Selected state */
+label.glass:has(input:checked) {
+    background: rgba(0,255,200,0.2);
+    border: 1px solid #00ffd5;
+}
+
+/* ================= CHECKBOX ================= */
+input[type="checkbox"] {
+    accent-color: #00e6ff;
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+/* ================= SCROLLBAR ================= */
+.grid::-webkit-scrollbar {
+    width: 6px;
+}
+.grid::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 10px;
+}
+
+/* ================= RESULT ================= */
+#result {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+/* ================= RESULT CARD ================= */
+.result-card {
+    width: 90%;
+    max-width: 500px;
+    padding: 30px;
+    text-align: center;
+    animation: fadeInUp 0.6s ease;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================= DISEASE ================= */
+.result-card h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+/* ================= CONFIDENCE ================= */
+.bar-container {
+    width: 100%;
+    height: 12px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.bar {
+    height: 100%;
+    background: linear-gradient(90deg,#00c6ff,#00ffcc);
+    width: 0%;
+    border-radius: 10px;
+    transition: width 1s ease;
+}
+
+/* ================= SEVERITY ================= */
+.severity {
+    margin-top: 15px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Colors */
+.low {
+    background: rgba(0,255,100,0.2);
+    color: #00ff99;
+}
+
+.medium {
+    background: rgba(255,200,0,0.2);
+    color: #ffd633;
+}
+
+.high {
+    background: rgba(255,0,0,0.2);
+    color: #ff4d4d;
+}
+
+/* ================= LOADING ================= */
+.hidden {
+    display: none;
+}
+
+/* Spinner */
+.loader {
+    margin: 20px auto;
+    border: 4px solid rgba(255,255,255,0.2);
+    border-top: 4px solid #00e6ff;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 600px) {
+    .title {
+        font-size: 22px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .result-card {
+        padding: 20px;
+    }
+}
