@@ -11,7 +11,7 @@ from xgboost import XGBClassifier
 from sklearn.neural_network import MLPClassifier
 
 # -----------------------------
-# PATH SETUP (ROBUST)
+# PATH SETUP (ROBUST ✅)
 # -----------------------------
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -20,13 +20,23 @@ MODEL_DIR = os.path.join(BASE_DIR, "models")
 
 os.makedirs(MODEL_DIR, exist_ok=True)
 
+print("📁 DATA PATH:", DATA_PATH)
+print("📁 MODEL DIR:", MODEL_DIR)
+
 
 # -----------------------------
 # TRAIN FUNCTION
 # -----------------------------
 def train():
-    print(f"📥 Loading dataset from: {DATA_PATH}")
-    df = pd.read_csv(r"C:\Users\Priyansu Sikdar\Downloads\health project\backend\app\scripts\datasets\processed\train_cleaned.csv")
+
+    # -----------------------------
+    # LOAD DATASET (FIXED ❌➡️✅)
+    # -----------------------------
+    if not os.path.exists(DATA_PATH):
+        raise FileNotFoundError(f"❌ Dataset not found at {DATA_PATH}")
+
+    print(f"\n📥 Loading dataset from: {DATA_PATH}")
+    df = pd.read_csv(r"C:\Users\Priyansu Sikdar\Downloads\health project\backend\app\datasets\processed\train_cleaned.csv")
 
     print("✅ Dataset Loaded!")
     print("Shape:", df.shape)
@@ -42,7 +52,7 @@ def train():
     X = df.drop("prognosis", axis=1)
     y = df["prognosis"]
 
-    # 🔥 SAVE FEATURE ORDER (VERY IMPORTANT FOR API)
+    # 🔥 SAVE FEATURE ORDER
     feature_columns = X.columns.tolist()
     joblib.dump(feature_columns, os.path.join(MODEL_DIR, "feature_columns.pkl"))
 
@@ -75,7 +85,7 @@ def train():
         max_depth=6,
         learning_rate=0.1,
         use_label_encoder=False,
-        eval_metric='mlogloss'
+        eval_metric="mlogloss"
     )
 
     xgb.fit(X_train, y_train)
@@ -108,18 +118,32 @@ def train():
     joblib.dump(imputer, os.path.join(MODEL_DIR, "imputer.pkl"))
 
     # -----------------------------
-    # 🔥 SELECT BEST MODEL
+    # 🔥 SELECT BEST MODEL + METADATA (NEW ✅)
     # -----------------------------
     if xgb_acc >= nn_acc:
         best_model = xgb
         best_model_name = "xgb_model.pkl"
+        use_imputer = False
         print("🏆 Best Model: XGBoost")
     else:
         best_model = nn
         best_model_name = "nn_model.pkl"
+        use_imputer = True
         print("🏆 Best Model: Neural Network")
 
     joblib.dump(best_model, os.path.join(MODEL_DIR, "best_model.pkl"))
+
+    # -----------------------------
+    # 🔥 SAVE METADATA (CRITICAL ✅)
+    # -----------------------------
+    metadata = {
+        "best_model": best_model_name,
+        "use_imputer": use_imputer
+    }
+
+    joblib.dump(metadata, os.path.join(MODEL_DIR, "model_metadata.pkl"))
+
+    print("\n📦 Metadata saved:", metadata)
 
     # -----------------------------
     print("\n🎉 Training Complete!")

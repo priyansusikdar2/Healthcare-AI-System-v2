@@ -3,48 +3,63 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Database
-from .database import Base, engine
+# -----------------------------
+# DATABASE
+# -----------------------------
+from app.database import Base, engine
 
-# 🔥 IMPORTANT: Import all models so tables are registered
+# 🔥 IMPORTANT: Import all models so tables register
 import app.models
 
-# Routers
-from .routers import (
+
+# -----------------------------
+# ROUTERS
+# -----------------------------
+from app.routers import (
     user_router,
     appointment_router,
     findings_router,
     engagement_router,
     disease_router,
     delivery_router,
-    literacy_router 
+    literacy_router,
+    ml_router
 )
 
-# -----------------------------
-# CREATE DATABASE TABLES
-# -----------------------------
-Base.metadata.create_all(bind=engine)
 
 # -----------------------------
 # FASTAPI APP INIT
 # -----------------------------
 app = FastAPI(
-    title="Healthcare Management API",
-    description="Industry-level Healthcare Backend using FastAPI + SQLAlchemy",
-    version="1.1.0"
+    title="🏥 Healthcare Management API",
+    description="Industry-level Healthcare Backend using FastAPI + SQLAlchemy + ML Integration",
+    version="1.2.0"
 )
+
+
+# -----------------------------
+# STARTUP EVENT (BETTER PRACTICE)
+# -----------------------------
+@app.on_event("startup")
+def startup_event():
+    print("🚀 Starting Healthcare API...")
+    Base.metadata.create_all(bind=engine)
+    print("✅ Database tables ready")
+
 
 # -----------------------------
 # CORS CONFIG
 # -----------------------------
-origins = ["*"]
+origins = ["*"]  # ⚠️ Restrict in production
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ⚠️ Change in production
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # -----------------------------
 # ROUTES
@@ -57,14 +72,33 @@ app.include_router(engagement_router.router, prefix="/engagements", tags=["Engag
 app.include_router(literacy_router.router, prefix="/literacy", tags=["Health Literacy"])
 app.include_router(disease_router.router, prefix="/disease_history", tags=["Disease History"])
 
+# 🔥 ML ROUTES
+app.include_router(
+    ml_router.router,
+    prefix="/ml",
+    tags=["ML Predictions"]
+)
+
+
 # -----------------------------
 # HEALTH CHECK
 # -----------------------------
 @app.get("/")
 def root():
-    return {"message": "🚀 Healthcare Management API is running!"}
+    return {
+        "message": "🚀 Healthcare Management API is running!",
+        "docs": "/docs"
+    }
 
 
 @app.get("/ping")
 def ping():
     return {"msg": "pong"}
+
+
+# -----------------------------
+# OPTIONAL: DEBUG ROUTE
+# -----------------------------
+@app.get("/debug/routes")
+def list_routes():
+    return [{"path": route.path, "name": route.name} for route in app.routes]

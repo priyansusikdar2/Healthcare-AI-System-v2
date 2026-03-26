@@ -9,8 +9,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW_DIR = os.path.join(BASE_DIR, "datasets", "raw")
 PROCESSED_DIR = os.path.join(BASE_DIR, "datasets", "processed")
 
-TRAIN_FILE = os.path.join(RAW_DIR, r"C:\Users\Priyansu Sikdar\Downloads\health project\backend\app\scripts\datasets\processed\train_cleaned.csv")
-TEST_FILE = os.path.join(RAW_DIR, r"C:\Users\Priyansu Sikdar\Downloads\health project\backend\app\scripts\datasets\processed\test_cleaned.csv")
+TRAIN_FILE = os.path.join(RAW_DIR, r"C:\Users\Priyansu Sikdar\Downloads\health project\backend\app\datasets\raw\Training.csv")
+TEST_FILE = os.path.join(RAW_DIR, r"C:\Users\Priyansu Sikdar\Downloads\health project\backend\app\datasets\raw\Testing.csv")
 
 os.makedirs(PROCESSED_DIR, exist_ok=True)
 

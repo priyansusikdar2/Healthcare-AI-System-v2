@@ -20,7 +20,7 @@ IMPUTER_PATH = os.path.join(MODEL_DIR, "imputer.pkl")  # optional (for NN)
 # -----------------------------
 def evaluate():
     print(f"📥 Loading test dataset from: {DATA_PATH}")
-    df = pd.read_csv(r"C:\Users\Priyansu Sikdar\Downloads\health project\backend\app\scripts\datasets\processed\test_cleaned.csv")
+    df = pd.read_csv(r"C:\Users\Priyansu Sikdar\Downloads\health project\backend\app\datasets\processed\test_cleaned.csv")
 
     print("✅ Dataset Loaded!")
     print("Shape:", df.shape)
