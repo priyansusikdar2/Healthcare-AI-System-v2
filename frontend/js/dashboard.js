@@ -1,106 +1,147 @@
-// ================== LOAD DASHBOARD ==================
-function loadDashboard() {
+// ================= USER =================
+const user = JSON.parse(localStorage.getItem("user")) || {
+    username: "Guest",
+    email: "Not available"
+};
 
-    const lang = localStorage.getItem("lang") || "en";
+// ================= INIT =================
+document.addEventListener("DOMContentLoaded", () => {
+    loadTheme();     // ✅ FIXED
+    loadUser();
+    loadRecords();
+    loadChart();
+    loadInsights();
+});
 
-    // ================== DATA ==================
-    const rawDisease = localStorage.getItem("disease") || t("notPredicted");
-    const rawSymptoms = JSON.parse(localStorage.getItem("symptoms") || "[]");
-    const rawRisk = localStorage.getItem("risk") || "Low";
-
-    const totalPredictions = parseInt(localStorage.getItem("predictions") || "0");
-
-    // ================== STATS ==================
-    const accuracy = "92%";
-    const users = 1000 + totalPredictions * 5;
-
-    // ================== TRANSLATION ==================
-    const disease = translateDisease(rawDisease);
-    const symptoms = rawSymptoms.length
-        ? translateSymptoms(rawSymptoms)
-        : [t("none")];
-
-    const risk = translateRisk(rawRisk);
-
-    // ================== RENDER ==================
-    document.getElementById("disease").innerText = disease;
-
-    document.getElementById("symptoms").innerText =
-        symptoms.join(", ");
-
-    document.getElementById("risk").innerText = risk;
-
-    document.getElementById("totalPredictions").innerText = totalPredictions;
-    document.getElementById("accuracy").innerText = accuracy;
-    document.getElementById("users").innerText = users.toLocaleString();
-
-    // ================== ACTIVITY ==================
-    loadActivity();
-
-    // ================== SAVE ACTIVITY ==================
-    saveActivity(t("viewedDashboard"));
+// ================= USER =================
+function loadUser() {
+    document.getElementById("userData").innerHTML = `
+        <h3>👤 ${user.username}</h3>
+        <p>Email: ${user.email}</p>
+    `;
 }
 
-// ================== TRANSLATE RISK ==================
-function translateRisk(risk) {
-
-    const r = risk.toLowerCase();
-
-    if (r.includes("low")) return t("low");
-    if (r.includes("moderate") || r.includes("medium")) return t("medium");
-    if (r.includes("high")) return t("high");
-
-    return risk;
+// ================= STORAGE =================
+function getData(key){
+    return JSON.parse(localStorage.getItem(key) || "[]");
 }
 
-// ================== SAVE ACTIVITY ==================
-function saveActivity(action) {
-
-    let activities = JSON.parse(localStorage.getItem("activities") || "[]");
-
-    const time = new Date().toLocaleTimeString();
-
-    activities.unshift(`${action} (${time})`);
-
-    // keep only last 5
-    activities = activities.slice(0, 5);
-
-    localStorage.setItem("activities", JSON.stringify(activities));
+function saveData(key, data){
+    localStorage.setItem(key, JSON.stringify(data));
 }
 
-// ================== LOAD ACTIVITY ==================
-function loadActivity() {
+// ================= CREATE PATIENT =================
+function createPatient() {
+    const name = document.getElementById("patientName").value.trim();
+    const age = document.getElementById("patientAge").value.trim();
 
-    const list = document.getElementById("activity-list");
+    if (!name || !age) return alert("Fill all fields");
 
-    let activities = JSON.parse(localStorage.getItem("activities") || "[]");
+    let patients = getData("patients");
 
-    // Default activity if empty
-    if (activities.length === 0) {
-        activities = [
-            t("checkedSymptoms"),
-            t("viewedPrediction"),
-            t("usedChatbot")
-        ];
-    }
+    patients.push({ id: Date.now(), name, age });
 
-    list.innerHTML = "";
+    saveData("patients", patients);
 
-    activities.forEach(a => {
-        const li = document.createElement("li");
-        li.innerText = a;
-        list.appendChild(li);
+    alert("✅ Patient created");
+    loadRecords();
+}
+
+// ================= GENERIC ADD =================
+function addGeneric(storageKey, inputId, field, message){
+    const value = document.getElementById(inputId).value.trim();
+
+    if (!value) return alert("Fill the field");
+
+    let data = getData(storageKey);
+
+    data.push({ id: Date.now(), [field]: value });
+
+    saveData(storageKey, data);
+
+    alert("✅ " + message);
+    loadRecords();
+}
+
+// ================= ADD FUNCTIONS =================
+function addFinding(){ addGeneric("findings","finding","description","Finding added"); }
+function addDelivery(){ addGeneric("delivery","delivery","details","Delivery added"); }
+function addEngagement(){ addGeneric("engagement","engagement","details","Engagement added"); }
+function addLiteracy(){ addGeneric("literacy","literacy","details","Literacy added"); }
+function addDisease(){ addGeneric("diseases","diseaseHistory","disease","Disease added"); }
+
+// ================= LOAD RECORDS =================
+function loadRecords() {
+
+    const patients = getData("patients");
+    const findings = getData("findings");
+    const deliveries = getData("delivery");
+    const engagements = getData("engagement");
+    const literacy = getData("literacy");
+    const diseases = getData("diseases");
+
+    document.getElementById("records").innerHTML = `
+        <h3>👤 Patients</h3>
+        ${patients.map(p => `<div class="record-card">${p.name} (${p.age})</div>`).join("") || "<p>No patients</p>"}
+
+        <h3>🧪 Findings</h3>
+        ${findings.map(f => `<div class="record-card">${f.description}</div>`).join("") || "<p>No findings</p>"}
+
+        <h3>🚚 Delivery</h3>
+        ${deliveries.map(d => `<div class="record-card">${d.details}</div>`).join("") || "<p>No delivery</p>"}
+
+        <h3>🤝 Engagement</h3>
+        ${engagements.map(e => `<div class="record-card">${e.details}</div>`).join("") || "<p>No engagement</p>"}
+
+        <h3>📚 Literacy</h3>
+        ${literacy.map(l => `<div class="record-card">${l.details}</div>`).join("") || "<p>No literacy</p>"}
+
+        <h3>🦠 Disease History</h3>
+        ${diseases.map(d => `<div class="record-card">${d.disease}</div>`).join("") || "<p>No disease history</p>"}
+    `;
+}
+
+// ================= CHART =================
+function loadChart() {
+    const ctx = document.getElementById("historyChart");
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Predictions", "Patients"],
+            datasets: [{
+                label: "Activity",
+                data: [
+                    parseInt(localStorage.getItem("predictions") || 0),
+                    getData("patients").length
+                ]
+            }]
+        }
     });
 }
 
-// ================== INIT ==================
-document.addEventListener("DOMContentLoaded", () => {
+// ================= INSIGHTS =================
+function loadInsights() {
+    const lastDisease = localStorage.getItem("disease") || "None";
 
-    // Apply UI translations first
-    if (typeof applyTranslations === "function") {
-        applyTranslations();
+    document.getElementById("insights").innerHTML = `
+        <h3>🧠 AI Insights</h3>
+        <p>Last Prediction: <b>${lastDisease}</b></p>
+    `;
+}
+
+// ================= THEME =================
+function toggleTheme() {
+    document.body.classList.toggle("light-mode");
+    localStorage.setItem(
+        "theme",
+        document.body.classList.contains("light-mode") ? "light" : "dark"
+    );
+}
+
+function loadTheme() {
+    if (localStorage.getItem("theme") === "light") {
+        document.body.classList.add("light-mode");
     }
-
-    // Load dynamic dashboard data
-    loadDashboard();
-});
+}
