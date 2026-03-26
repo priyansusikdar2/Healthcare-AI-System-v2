@@ -1,3 +1,9 @@
+const BASE_URL = "http://127.0.0.1:8000";
+const token = localStorage.getItem("token");
+
+// ✅ CORRECT ENDPOINT (from main.py)
+const PREDICT_API = "/ml/predict";
+
 // ================== SYMPTOMS ==================
 const symptoms = [
 "itching","skin_rash","nodal_skin_eruptions","continuous_sneezing","shivering",
@@ -31,172 +37,95 @@ const symptoms = [
 "lack_of_concentration","visual_disturbances"
 ];
 
-// ================== TRANSLATIONS ==================
-const lang = localStorage.getItem("lang") || "en";
-
-const text = {
-    en: {
-        confidence: "Confidence",
-        riskLow: "Low Risk",
-        riskMed: "Moderate",
-        riskHigh: "High Risk",
-        selectSymptom: "Select at least one symptom"
-    },
-    hi: {
-        confidence: "विश्वास स्तर",
-        riskLow: "कम जोखिम",
-        riskMed: "मध्यम",
-        riskHigh: "उच्च जोखिम",
-        selectSymptom: "कम से कम एक लक्षण चुनें"
-    }
-};
+// ================== HELPER ==================
+function el(id){
+    return document.getElementById(id);
+}
 
 // ================== RENDER SYMPTOMS ==================
-const container = document.getElementById("symptomsContainer");
+const container = el("symptomsContainer");
 
-symptoms.forEach((s) => {
-    container.innerHTML += `
+if (container) {
+    container.innerHTML = symptoms.map(s => `
         <label class="glass">
             <input type="checkbox" value="${s}">
             ${s.replaceAll("_"," ")}
         </label>
-    `;
-});
+    `).join("");
+}
 
-// ================== ALL DISEASES ==================
-const allDiseases = [
-"Fungal Infection","Allergy","GERD","Chronic Cholestasis",
-"Drug Reaction","Peptic Ulcer Disease","AIDS","Diabetes",
-"Gastroenteritis","Bronchial Asthma","Hypertension",
-"Migraine","Cervical Spondylosis","Paralysis",
-"Chickenpox","Tuberculosis","Common Cold","Pneumonia","Malaria","Dengue","Typhoid",
-"COPD","Sinusitis","Pharyngitis","Heart Attack","Angina","Arrhythmia",
-"Epilepsy","Parkinson's Disease","Stroke","Hypothyroidism","Hyperthyroidism",
-"Obesity","Gastritis","IBS","Hepatitis A","Hepatitis B","Hepatitis C",
-"Psoriasis","Eczema","Acne","Arthritis","Anemia","Depression",
-"Anxiety Disorder","Urinary Tract Infection (UTI)","Kidney Stones","PCOS"
-];
+// ================== FORM SUBMIT ==================
+const form = el("predictionForm");
 
-// ================== SYMPTOM → DISEASE MAP ==================
-const diseaseMap = {
-    itching: ["Fungal Infection","Allergy"],
-    skin_rash: ["Fungal Infection","Allergy","Chickenpox"],
-    continuous_sneezing: ["Common Cold","Allergy"],
-    chills: ["Malaria","Dengue","Typhoid"],
-    high_fever: ["Malaria","Dengue","Typhoid","Pneumonia"],
+if (form) {
+    form.addEventListener("submit", async function(e){
+        e.preventDefault();
 
-    cough: ["Common Cold","Bronchial Asthma","Pneumonia","Tuberculosis"],
-    breathlessness: ["Bronchial Asthma","COPD","Heart Attack"],
-    chest_pain: ["Heart Attack","Angina"],
+        const selected = [...document.querySelectorAll("input:checked")]
+            .map(i => i.value);
 
-    stomach_pain: ["Gastritis","Peptic Ulcer Disease"],
-    acidity: ["GERD","Gastritis"],
-    vomiting: ["Gastroenteritis"],
-    diarrhoea: ["Gastroenteritis"],
+        if (selected.length === 0) {
+            alert("⚠️ Select at least one symptom");
+            return;
+        }
 
-    headache: ["Migraine"],
-    dizziness: ["Anemia"],
-    loss_of_balance: ["Stroke","Cervical Spondylosis"],
+        // ================== CREATE FEATURE VECTOR ==================
+        let featureVector = {};
 
-    fatigue: ["Diabetes","Anemia","Hypothyroidism"],
-    weight_loss: ["Diabetes"],
-    weight_gain: ["Hypothyroidism","Obesity"],
-
-    burning_micturition: ["Urinary Tract Infection (UTI)"],
-    bladder_discomfort: ["UTI","Kidney Stones"],
-
-    depression: ["Depression"],
-    anxiety: ["Anxiety Disorder"],
-
-    joint_pain: ["Arthritis"],
-    knee_pain: ["Arthritis"],
-    back_pain: ["Cervical Spondylosis"]
-};
-
-// ================== PREDICTION ==================
-document.getElementById("predictionForm").addEventListener("submit", function(e){
-    e.preventDefault();
-
-    const selected = [...document.querySelectorAll("input:checked")].map(i => i.value);
-
-    if(selected.length === 0){
-        alert(text[lang].selectSymptom);
-        return;
-    }
-
-    document.getElementById("loading").classList.remove("hidden");
-
-    setTimeout(()=>{
-
-        document.getElementById("loading").classList.add("hidden");
-
-        // 🔥 SMART DISEASE LOGIC
-        let possibleDiseases = [];
-
-        selected.forEach(symptom => {
-            if(diseaseMap[symptom]){
-                possibleDiseases.push(...diseaseMap[symptom]);
-            }
+        symptoms.forEach(symptom => {
+            featureVector[symptom] = selected.includes(symptom) ? 1 : 0;
         });
 
-        possibleDiseases = [...new Set(possibleDiseases)];
+        try {
+            console.log("🚀 Sending request to:", BASE_URL + PREDICT_API);
+            console.log("📦 Payload:", featureVector);
 
-        if(possibleDiseases.length === 0){
-            possibleDiseases = allDiseases;
-        }
+            const res = await fetch(BASE_URL + PREDICT_API, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(token && { "Authorization": `Bearer ${token}` })
+                },
+                body: JSON.stringify({
+                    data: featureVector   // ✅ IMPORTANT FIX
+                })
+            });
 
-        const finalDisease = possibleDiseases[
-            Math.floor(Math.random() * possibleDiseases.length)
-        ];
+            const data = await res.json();
+            console.log("✅ Backend Response:", data);
 
-        // Confidence logic
-        let confidence = 60 + selected.length * 5 + Math.random()*10;
-        if(confidence > 98) confidence = 98;
-        confidence = confidence.toFixed(2);
+            // ================== ERROR HANDLING ==================
+            if (!res.ok || data.error) {
+                console.error("❌ FULL ERROR:", data);
+                throw new Error(data.error || "Prediction failed");
+            }
 
-        // Severity
-        let severityClass = "low";
-        let severityText = text[lang].riskLow;
+            const disease = data.prediction || "Unknown";
+            const confidence = data.confidence || 0;
 
-        if(confidence > 85){
-            severityClass = "high";
-            severityText = text[lang].riskHigh;
-        }
-        else if(confidence > 70){
-            severityClass = "medium";
-            severityText = text[lang].riskMed;
-        }
+            // ================== SAVE ==================
+            localStorage.setItem("disease", disease);
+            localStorage.setItem("confidence", confidence);
 
-        // SAVE
-        localStorage.setItem("disease", finalDisease);
-        localStorage.setItem("symptoms", JSON.stringify(selected));
-        localStorage.setItem("confidence", confidence);
-        localStorage.setItem("risk", severityText);
+            localStorage.setItem(
+                "predictions",
+                (parseInt(localStorage.getItem("predictions") || 0) + 1)
+            );
 
-        localStorage.setItem("predictions",
-            (parseInt(localStorage.getItem("predictions") || 0) + 1)
-        );
-
-        // RESULT UI
-        document.getElementById("result").innerHTML = `
-            <div class="glass result-card">
-                <h3>${finalDisease}</h3>
-
-                <p>${text[lang].confidence}: ${confidence}%</p>
-
-                <div class="bar-container">
-                    <div class="bar" id="confidenceBar"></div>
+            // ================== UI ==================
+            el("result").innerHTML = `
+                <div class="glass result-card">
+                    <h3>🩺 ${disease}</h3>
+                    <p>Confidence: ${confidence}%</p>
                 </div>
+            `;
 
-                <div class="severity ${severityClass}">
-                    ${severityText}
-                </div>
-            </div>
-        `;
+        } catch (err) {
+            console.error("🔥 Prediction Error:", err);
 
-        setTimeout(()=>{
-            document.getElementById("confidenceBar").style.width = confidence + "%";
-        },100);
-
-    }, 1200);
-});
+            el("result").innerHTML = `
+                <p style="color:red;">❌ ${err.message}</p>
+            `;
+        }
+    });
+}
