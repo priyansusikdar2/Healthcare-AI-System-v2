@@ -1,30 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Codecure</title>
-<link rel="stylesheet" href="css/style.css">
+<title>Healthcare Login</title>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
-<div class="bg"></div>
 
-<nav class="glass">
-    <h2>Codecure</h2>
-    <ul>
-        <li><a href="predict.html">Predict</a></li>
-        <li><a href="dashboard.html">Dashboard</a></li>
-        <li><a href="login.html">Login</a></li>
-    </ul>
-</nav>
+<div class="glass-card">
+    <h2 id="title" data-i18n="login">Login</h2>
 
-<section class="hero">
-    <div class="glass card">
-        <h1>AI Health Diagnosis</h1>
-        <p>Predict diseases instantly using ML</p>
-        <a href="predict.html" class="btn">Start Now</a>
-    </div>
-</section>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+
+    <button onclick="login()" data-i18n="login">Login</button>
+
+    <p onclick="toggleMode()" id="toggle">Create account</p>
+
+    <select onchange="changeLang(this.value)">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+    </select>
+
+    <div id="loader" style="display:none;">Loading...</div>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/auth.js"></script>
 
 </body>
 </html>
