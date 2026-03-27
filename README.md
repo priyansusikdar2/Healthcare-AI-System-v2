@@ -175,6 +175,7 @@ uvicorn backend.app.main:app --reload
 
 👉 http://127.0.0.1:8000
 👉 http://127.0.0.1:8000/docs
+👉 thunderclient (vs code)
 
 ---
 
@@ -182,7 +183,7 @@ uvicorn backend.app.main:app --reload
 
 * Open `frontend/index.html`
 * OR use Live Server
-  👉 http://localhost:5500
+* http://localhost:5500
 
 ---
 
