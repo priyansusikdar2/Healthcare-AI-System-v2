@@ -1,12 +1,9 @@
 // ================= USER =================
-const user = JSON.parse(localStorage.getItem("user")) || {
-    username: "Guest",
-    email: "Not available"
-};
+const user = JSON.parse(localStorage.getItem("user"));
 
 // ================= INIT =================
 document.addEventListener("DOMContentLoaded", () => {
-    loadTheme();     // ✅ FIXED
+    loadTheme();
     loadUser();
     loadRecords();
     loadChart();
@@ -15,9 +12,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ================= USER =================
 function loadUser() {
+    if (!user || !user.username) {
+        document.getElementById("userData").innerHTML = `
+            <h3>👤 User</h3>
+        `;
+        return;
+    }
+
     document.getElementById("userData").innerHTML = `
         <h3>👤 ${user.username}</h3>
-        <p>Email: ${user.email}</p>
     `;
 }
 
