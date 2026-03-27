@@ -6,62 +6,59 @@
 <link rel="stylesheet" href="css/styles.css">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/i18n.js"></script>
 
 <style>
-.sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 230px;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(15px);
-    padding: 20px;
-}
-
-.main-content {
-    margin-left: 250px;
-    padding: 20px;
-}
-
-.section { margin-top: 25px; }
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
+/* Tabs */
+.tabs {
+    display: flex;
     gap: 10px;
+    margin: 15px 0;
 }
 
-input {
-    padding: 8px;
-    border-radius: 8px;
-}
-
-.record-card {
-    margin-top: 10px;
+.tabs button {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid cyan;
     padding: 10px;
     border-radius: 10px;
-    background: rgba(255,255,255,0.08);
 }
 
-/* LIGHT MODE */
-.light-mode {
-    background: #f5f5f5;
-    color: black;
+.tabs button.active {
+    background: linear-gradient(45deg, #00f2fe, #4facfe);
 }
 
-.light-mode .sidebar {
-    background: rgba(255,255,255,0.9);
+/* 🔥 FIX: Proper tab visibility */
+.tab-content {
+    display: none;
 }
 
-.light-mode .record-card {
-    background: rgba(0,0,0,0.05);
+.tab-content.active {
+    display: block;
+}
+
+/* Center ONLY inside sections */
+.center-block {
+    display: flex;
+    justify-content: center;
+}
+
+/* Medium width */
+.box-width {
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Section spacing */
+.section {
+    margin-top: 25px;
 }
 </style>
 </head>
 
-<body>
+<body class="dashboard-page">
 
+<!-- ================= SIDEBAR ================= -->
 <div class="sidebar">
     <h2>🩺 HealthAI</h2>
 
@@ -79,59 +76,108 @@ input {
     <button onclick="logout()" data-i18n="logout">Logout</button>
 </div>
 
+<!-- ================= MAIN ================= -->
 <div class="main-content">
 
-    <h1 data-i18n="dashboard">Patient Dashboard</h1>
+<h1 data-i18n="dashboard">Patient Dashboard</h1>
 
-    <div id="userData" class="glass-card"></div>
+<div id="userData" class="glass-card"></div>
+
+<!-- ================= TABS ================= -->
+<div class="tabs">
+    <button class="active" onclick="openTab('overview', this)">Overview</button>
+    <button onclick="openTab('patient', this)">Patient</button>
+    <button onclick="openTab('recordsTab', this)">Records</button>
+</div>
+
+<!-- ================= OVERVIEW ================= -->
+<div id="overview" class="tab-content active">
 
     <div class="section">
-        <h2>📊 Activity</h2>
-        <canvas id="historyChart"></canvas>
+        <div class="center-block">
+            <div class="box-width">
+                <h2>📊 Activity</h2>
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
     </div>
 
     <div class="section">
-        <div id="insights" class="glass-card"></div>
-    </div>
-
-    <div class="section glass-card">
-        <h2 data-i18n="patientMgmt">📋 Patient Management</h2>
-
-        <div class="form-grid">
-            <input id="patientName" placeholder="Patient Name">
-            <input id="patientAge" placeholder="Age">
+        <div class="center-block">
+            <div id="insights" class="glass-card box-width"></div>
         </div>
-
-        <button onclick="createPatient()">Create Patient</button>
-
-        <div class="form-grid">
-            <input id="finding" placeholder="Finding">
-            <input id="delivery" placeholder="Delivery">
-            <input id="engagement" placeholder="Engagement">
-            <input id="literacy" placeholder="Literacy">
-            <input id="diseaseHistory" placeholder="Disease History">
-        </div>
-
-        <button onclick="addFinding()">Add Finding</button>
-        <button onclick="addDelivery()">Add Delivery</button>
-        <button onclick="addEngagement()">Add Engagement</button>
-        <button onclick="addLiteracy()">Add Literacy</button>
-        <button onclick="addDisease()">Add Disease</button>
-    </div>
-
-    <div class="section glass-card">
-        <h2 data-i18n="records">📁 Records</h2>
-        <div id="records"></div>
     </div>
 
 </div>
 
-<script src="js/i18n.js"></script>
+<!-- ================= PATIENT ================= -->
+<div id="patient" class="tab-content">
+
+    <div class="section">
+        <div class="center-block">
+            <div class="glass-card box-width">
+
+                <h2 data-i18n="patientMgmt">📋 Patient Management</h2>
+
+                <div class="form-grid">
+                    <input id="patientName" placeholder="Patient Name">
+                    <input id="patientAge" placeholder="Age">
+                </div>
+
+                <button onclick="createPatient()">Create Patient</button>
+
+                <div class="form-grid">
+                    <input id="finding" placeholder="Finding">
+                    <input id="delivery" placeholder="Delivery">
+                    <input id="engagement" placeholder="Engagement">
+                    <input id="literacy" placeholder="Literacy">
+                    <input id="diseaseHistory" placeholder="Disease History">
+                </div>
+
+                <button onclick="addFinding()">Add Finding</button>
+                <button onclick="addDelivery()">Add Delivery</button>
+                <button onclick="addEngagement()">Add Engagement</button>
+                <button onclick="addLiteracy()">Add Literacy</button>
+                <button onclick="addDisease()">Add Disease</button>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= RECORDS ================= -->
+<div id="recordsTab" class="tab-content">
+
+    <div class="section">
+        <div class="center-block">
+            <div class="glass-card box-width">
+
+                <h2 data-i18n="records">📁 Records</h2>
+                <div id="records"></div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</div>
+
 <script src="js/dashboard.js"></script>
 
 <script>
 function go(p){ window.location.href = p }
 function logout(){ localStorage.clear(); window.location = 'index.html' }
+
+/* Tabs */
+function openTab(id, btn){
+    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
+
+    document.getElementById(id).classList.add("active");
+    btn.classList.add("active");
+}
 </script>
 
 </body>
